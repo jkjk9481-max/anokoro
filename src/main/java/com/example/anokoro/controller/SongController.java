@@ -56,4 +56,17 @@ public class SongController {
             @RequestParam int era) {
         return songService.filterSongs(mood, genre, anime, era);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Song> updateSong(@PathVariable Long id, @RequestBody Song song) {
+        Song existing = songService.getSongById(id);
+        existing.setYoutubeUrl(song.getYoutubeUrl());
+        existing.setTitle(song.getTitle());
+        existing.setArtist(song.getArtist());
+        existing.setMood(song.getMood());
+        existing.setGenre(song.getGenre());
+        existing.setReleaseYear(song.getReleaseYear());
+        existing.setAnimeName(song.getAnimeName());
+        return ResponseEntity.ok(songService.addSong(existing));
+    }
 }

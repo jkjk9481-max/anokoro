@@ -1,4 +1,4 @@
-html<!DOCTYPE html>
+hDOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -428,23 +428,28 @@ html<!DOCTYPE html>
             return;
         }
 
+
         grid.innerHTML = songs.map(song => `
-            <div class="song-card">
-                <div class="song-title">${song.title}</div>
-                <div class="song-artist">${song.artist}</div>
-                <div class="song-meta">
-                    ${song.animeName ? song.animeName + ' · ' : ''}${song.releaseYear}년
-                </div>
-                <span class="tag">${song.mood}</span>
-                <span class="tag">${song.genre}</span>
-                <div class="song-actions">
-                    <button class="like-btn" onclick="likeSong(${song.id}, document.getElementById('like-${song.id}'))">♥ 좋아요</button>
-                    <span class="like-count" id="like-${song.id}">♥ ${song.likeCount}</span>
-                    ${song.youtubeUrl && !song.youtubeUrl.includes('example') ?
-            `<a class="youtube-btn" href="${song.youtubeUrl}" target="_blank">▶ YouTube</a>` : ''}
-                </div>
-            </div>
-        `).join('');
+    <div class="song-card" data-youtube="${song.youtubeUrl || ''}">
+        <div class="song-title">${song.title}</div>
+        <div class="song-artist">${song.artist}</div>
+        <div class="song-meta">
+            ${song.animeName ? song.animeName + ' · ' : ''}${song.releaseYear}년
+        </div>
+        <span class="tag">${song.mood}</span>
+        <span class="tag">${song.genre}</span>
+
+        <div class="youtube-embed" id="embed-${song.id}" style="display:none; margin: 12px 0;"></div>
+
+        <div class="song-actions">
+            <button class="like-btn" onclick="likeSong(${song.id}, document.getElementById('like-${song.id}'))">♥ 좋아요</button>
+            <span class="like-count" id="like-${song.id}">♥ ${song.likeCount}</span>
+            ${song.youtubeUrl && !song.youtubeUrl.includes('example') ? `
+                <button class="youtube-btn" onclick="togglePlay(${song.id})">▶ 재생</button>
+            ` : ''}
+        </div>
+    </div>
+`).join('');
     }
 
     async function likeSong(id, countEl) {
@@ -462,8 +467,49 @@ html<!DOCTYPE html>
         renderQuestion();
     }
 
+    function getYoutubeEmbedUrl(url) {
+        // https://www.youtube.com/watch?v=SX_ViT4Ra7k
+        // → https://www.youtube.com/embed/SX_ViT4Ra7k?autoplay=1
+        const videoId = url.split('v=')[1]?.split('&')[0];
+        return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    }
+
+    function togglePlay(id) {
+        // 다른 모든 영상 iframe 제거해서 소리 완전히 끊기
+        document.querySelectorAll('.youtube-embed').forEach(embed => {
+            if (embed.id !== `embed-${id}`) {
+                embed.innerHTML = '';
+                embed.style.display = 'none';
+            }
+        });
+
+        const embed = document.getElementById(`embed-${id}`);
+        if (embed.style.display === 'none' || embed.innerHTML === '') {
+            embed.style.display = 'block';
+            embed.innerHTML = `
+            <iframe
+                width="100%"
+                height="180"
+                src="${getYoutubeEmbedUrl(getCurrentUrl(id))}"
+                frameborder="0"
+                allow="autoplay; encrypted-media"
+                allowfullscreen
+                style="border-radius: 12px;">
+            </iframe>
+        `;
+        } else {
+            embed.innerHTML = '';
+            embed.style.display = 'none';
+        }
+    }
+
+    function getCurrentUrl(id) {
+        const embed = document.getElementById(`embed-${id}`);
+        const card = embed.closest('.song-card');
+        return card.getAttribute('data-youtube');
+    }
+
     renderQuestion();
 </script>
-
 </body>
-</html>
+</html>tml<!

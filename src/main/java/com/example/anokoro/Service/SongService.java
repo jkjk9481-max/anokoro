@@ -69,4 +69,9 @@ public class SongService {
 
         return songs;
     }
+
+    public Song getSongById(Long id) {
+        return songRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("곡을 찾을 수 없어요"));
+    }
 }
