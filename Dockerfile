@@ -6,4 +6,4 @@ RUN gradle build -x test
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
-ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]g
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "/app/app.jar"]
