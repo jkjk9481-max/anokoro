@@ -65,4 +65,7 @@ java -jar build/libs/*.jar
 2026년 5월
 
 👨‍💻 개발자
-이름역할GitHub도윤백엔드 개발@jkjk9481-max
+이름역할GitHub
+
+도윤백엔드 개발
+jkjk9481-max
