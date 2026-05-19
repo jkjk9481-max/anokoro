@@ -1,4 +1,4 @@
-hDOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -391,6 +391,12 @@ hDOCTYPE html>
         answers[questions[currentStep].key] = selectedValue;
         currentStep++;
 
+        // JPOP 선택하면 애니 질문 건너뛰기
+        if (questions[currentStep - 1].key === 'genre' && selectedValue === 'JPOP') {
+            answers['anime'] = 'all';
+            currentStep++; // 애니 질문 스킵
+        }
+
         if (currentStep < questions.length) {
             renderQuestion();
         } else {
@@ -512,4 +518,4 @@ hDOCTYPE html>
     renderQuestion();
 </script>
 </body>
-</html>tml<!
+</html>
