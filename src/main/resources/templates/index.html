@@ -1,0 +1,469 @@
+html<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>AnoKoro - 그 시절 그 기분</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #0d0d1a;
+            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* 온보딩 화면 */
+        #onboarding {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            color: #c084fc;
+            letter-spacing: 6px;
+            margin-bottom: 12px;
+        }
+
+        .logo-sub {
+            color: #6060a0;
+            font-size: 0.95rem;
+            margin-bottom: 60px;
+        }
+
+        .question-box {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .step-indicator {
+            color: #6060a0;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #e0d0ff;
+            margin-bottom: 36px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .option-btn {
+            background-color: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            color: #c0c0e0;
+            padding: 14px 24px;
+            border-radius: 999px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover, .option-btn.selected {
+            background-color: #c084fc;
+            border-color: #c084fc;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .next-btn {
+            margin-top: 36px;
+            background: linear-gradient(135deg, #c084fc, #818cf8);
+            border: none;
+            color: white;
+            padding: 14px 48px;
+            border-radius: 999px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            transition: opacity 0.2s;
+        }
+
+        .next-btn:hover { opacity: 0.85; }
+
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background-color: #1a1a2e;
+            border-radius: 999px;
+            margin: 40px auto 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #c084fc, #818cf8);
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+
+        /* 결과 화면 */
+        #result {
+            display: none;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px 30px;
+            background: linear-gradient(180deg, #1a1a2e, #0d0d1a);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #c084fc;
+            letter-spacing: 4px;
+        }
+
+        header p {
+            color: #a0a0b0;
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+
+        .result-summary {
+            text-align: center;
+            padding: 20px;
+            color: #a0a0b0;
+            font-size: 0.95rem;
+        }
+
+        .result-summary span {
+            color: #c084fc;
+            font-weight: bold;
+        }
+
+        .retry-btn {
+            display: block;
+            margin: 0 auto 30px;
+            background: none;
+            border: 1px solid #c084fc;
+            color: #c084fc;
+            padding: 10px 32px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .retry-btn:hover {
+            background-color: #c084fc;
+            color: white;
+        }
+
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px 40px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .song-card {
+            background-color: #1a1a2e;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #2a2a4a;
+            transition: transform 0.2s;
+        }
+
+        .song-card:hover { transform: translateY(-4px); }
+
+        .song-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #c084fc;
+            margin-bottom: 6px;
+        }
+
+        .song-artist {
+            font-size: 0.9rem;
+            color: #a0a0b0;
+            margin-bottom: 4px;
+        }
+
+        .song-meta {
+            font-size: 0.8rem;
+            color: #6060a0;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: #2a2a4a;
+            color: #c084fc;
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            margin-right: 6px;
+            margin-bottom: 12px;
+        }
+
+        .song-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .like-btn {
+            background: none;
+            border: 1px solid #c084fc;
+            color: #c084fc;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .like-btn:hover {
+            background-color: #c084fc;
+            color: white;
+        }
+
+        .youtube-btn {
+            background: none;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .youtube-btn:hover {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        .like-count {
+            font-size: 0.85rem;
+            color: #a0a0b0;
+        }
+
+        .empty {
+            text-align: center;
+            color: #6060a0;
+            padding: 60px;
+            font-size: 1.1rem;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 온보딩 화면 -->
+<div id="onboarding">
+    <div class="logo">あのころ</div>
+    <div class="logo-sub">그 시절, 그 기분의 노래를 찾아드려요</div>
+
+    <div class="question-box">
+        <div class="step-indicator" id="stepIndicator">STEP 1 / 5</div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="optionsContainer"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextStep()">다음 →</button>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+    </div>
+</div>
+
+<!-- 결과 화면 -->
+<div id="result">
+    <header>
+        <h1>あのころ</h1>
+        <p>그 시절, 그 기분의 노래를 찾아드려요</p>
+    </header>
+
+    <div class="result-summary" id="resultSummary"></div>
+    <button class="retry-btn" onclick="restart()">↩ 다시 선택하기</button>
+
+    <div class="song-grid" id="songGrid"></div>
+</div>
+
+<script>
+    const questions = [
+        {
+            key: 'mood',
+            text: '지금 기분이 어때? 🎵',
+            options: [
+                { label: '⚡ 신남', value: '신남' },
+                { label: '🌧 우울', value: '우울' },
+                { label: '🌸 설렘', value: '설렘' },
+                { label: '✨ 감동', value: '감동' },
+                { label: '🔥 긴장', value: '긴장' }
+            ]
+        },
+        {
+            key: 'genre',
+            text: '어떤 걸 듣고 싶어? 🎶',
+            options: [
+                { label: '🎌 애니 OST', value: '애니OST' },
+                { label: '🎤 JPOP', value: 'JPOP' },
+                { label: '🎵 둘 다', value: 'all' }
+            ]
+        },
+        {
+            key: 'anime',
+            text: '어떤 애니 OST가 땡겨? 🌟',
+            options: [
+                { label: '⚔️ 귀멸의 칼날', value: '귀멸의 칼날' },
+                { label: '🌌 너의 이름은', value: '너의 이름은' },
+                { label: '🔮 주술회전', value: '주술회전' },
+                { label: '💥 히어로 아카데미아', value: '나의 히어로 아카데미아' },
+                { label: '🎭 은혼', value: '은혼' },
+                { label: '⚙️ 진격의 거인', value: '진격의 거인' },
+                { label: '🎵 상관없음', value: 'all' }
+            ]
+        },
+        {
+            key: 'era',
+            text: '그 시절이 그리워? 📅',
+            options: [
+                { label: '🕹 2010년대 초 (2010~2013)', value: '2010' },
+                { label: '🎮 2010년대 중반 (2014~2016)', value: '2015' },
+                { label: '📱 2010년대 후반 (2017~2019)', value: '2018' },
+                { label: '🚀 2020년대 (2020~)', value: '2022' }
+            ]
+        },
+        {
+            key: 'vibe',
+            text: '얼마나 신나는 곡을 원해? 🔊',
+            options: [
+                { label: '🌙 잔잔하게', value: 'calm' },
+                { label: '☀️ 보통으로', value: 'normal' },
+                { label: '🔥 미친듯이 신나게', value: 'hype' }
+            ]
+        }
+    ];
+
+    let currentStep = 0;
+    let answers = {};
+    let selectedValue = null;
+
+    function renderQuestion() {
+        const q = questions[currentStep];
+        document.getElementById('stepIndicator').textContent = `STEP ${currentStep + 1} / ${questions.length}`;
+        document.getElementById('questionText').textContent = q.text;
+        document.getElementById('progressFill').style.width = `${((currentStep + 1) / questions.length) * 100}%`;
+
+        const container = document.getElementById('optionsContainer');
+        container.innerHTML = q.options.map(opt => `
+            <button class="option-btn" onclick="selectOption(this, '${opt.value}')">
+                ${opt.label}
+            </button>
+        `).join('');
+
+        selectedValue = null;
+        document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function selectOption(el, value) {
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedValue = value;
+        document.getElementById('nextBtn').style.display = 'inline-block';
+    }
+
+    function nextStep() {
+        if (!selectedValue) return;
+        answers[questions[currentStep].key] = selectedValue;
+        currentStep++;
+
+        if (currentStep < questions.length) {
+            renderQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    async function showResult() {
+        document.getElementById('onboarding').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+
+        // 기분으로 기본 검색
+        const mood = answers.mood;
+        const genre = answers.genre;
+        const anime = answers.anime;
+        const era = parseInt(answers.era);
+
+        let url = `/api/songs/filter?mood=${mood}&genre=${genre}&anime=${anime}&era=${era}`;
+        const res = await fetch(url);
+        const songs = await res.json();
+
+        // 결과 요약
+        const eraLabel = {2010: '2010년대 초', 2015: '2010년대 중반', 2018: '2010년대 후반', 2022: '2020년대'};
+        document.getElementById('resultSummary').innerHTML = `
+            <span>${answers.mood}</span> 기분에 <span>${eraLabel[era]}</span> 감성의 곡들이에요 🎵
+        `;
+
+        renderSongs(songs);
+    }
+
+    function renderSongs(songs) {
+        const grid = document.getElementById('songGrid');
+        if (songs.length === 0) {
+            grid.innerHTML = '<div class="empty">해당하는 곡이 없어요 😢<br>곡 데이터를 더 추가하면 나와요!</div>';
+            return;
+        }
+
+        grid.innerHTML = songs.map(song => `
+            <div class="song-card">
+                <div class="song-title">${song.title}</div>
+                <div class="song-artist">${song.artist}</div>
+                <div class="song-meta">
+                    ${song.animeName ? song.animeName + ' · ' : ''}${song.releaseYear}년
+                </div>
+                <span class="tag">${song.mood}</span>
+                <span class="tag">${song.genre}</span>
+                <div class="song-actions">
+                    <button class="like-btn" onclick="likeSong(${song.id}, document.getElementById('like-${song.id}'))">♥ 좋아요</button>
+                    <span class="like-count" id="like-${song.id}">♥ ${song.likeCount}</span>
+                    ${song.youtubeUrl && !song.youtubeUrl.includes('example') ?
+            `<a class="youtube-btn" href="${song.youtubeUrl}" target="_blank">▶ YouTube</a>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function likeSong(id, countEl) {
+        const res = await fetch(`/api/songs/${id}/like`, { method: 'POST' });
+        const song = await res.json();
+        countEl.textContent = `♥ ${song.likeCount}`;
+    }
+
+    function restart() {
+        currentStep = 0;
+        answers = {};
+        selectedValue = null;
+        document.getElementById('onboarding').style.display = 'flex';
+        document.getElementById('result').style.display = 'none';
+        renderQuestion();
+    }
+
+    renderQuestion();
+</script>
+
+</body>
+</html>
