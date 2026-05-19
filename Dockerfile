@@ -1,6 +1,6 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
-COPY . .
+COPY src/main/java/com/example .
 RUN gradle build -x test
 
 FROM openjdk:17-jdk-slim
